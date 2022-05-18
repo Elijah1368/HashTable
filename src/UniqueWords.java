@@ -5,13 +5,13 @@ public class UniqueWords {
 
     public UniqueWords() {
         book = new BookReader("WarAndPeace.txt");
+        addUniqueWordsToHashTable();
     }
 
-    /*
-    public void addUniqueWordsToAVL() {
+    public void addUniqueWordsToHashTable() {
         //Resets pointer to first word
         book.words.first();
-        MyBinarySearchTree<String> binarySearchTree = new MyBinarySearchTree<String>();
+        MyHashTable<String, Integer> myHashTable = new MyHashTable<>(32768);
 
         //Times adding unique words
         long start = System.currentTimeMillis();
@@ -19,24 +19,27 @@ public class UniqueWords {
         String currWord = book.words.current();
 
         while (currWord != null) {
-            if (binarySearchTree.find(currWord) == null) {
-                binarySearchTree.add(currWord);
+            Integer val = myHashTable.get(currWord);
+            if (val == null) {
+                myHashTable.put(currWord, 1);
+            } else {
+                myHashTable.put(currWord, val + 1);
             }
             currWord = book.words.next();
         }
 
         long time = System.currentTimeMillis() - start;
-        System.out.printf("Adding unique words to an AVL binary search tree.. in %d milliseconds%n", time);
-        System.out.printf("%d unique words%n", binarySearchTree.size());
-        System.out.printf("%d height%n%d comparisons.%n%d rotations%n", binarySearchTree.height(), binarySearchTree.comparisons, binarySearchTree.rotations);
-
+        System.out.printf("Adding unique words to a hash table.. in %d milliseconds%n", time);
+        System.out.printf("%d unique words%n", myHashTable.size());
+        System.out.printf("%d comparisons%n", myHashTable.comparisons);
+        System.out.printf("%d max probe%n", myHashTable.maxProbe);
         //Times sorting unique words
         start = System.currentTimeMillis();
-        binarySearchTree.toString();
+        myHashTable.toString();
         time = System.currentTimeMillis() - start;
 
-        System.out.printf("Traversing the AVL... in %d milliseconds%n%n", time);
+        System.out.printf("Extracting the key-value pairs... in %d milliseconds%n%n", time);
         //System.out.println(linkedListUnique);
     }
-    */
+   
 }
