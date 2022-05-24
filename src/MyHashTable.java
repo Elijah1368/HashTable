@@ -22,52 +22,44 @@
     }
 
     public V get(K key) {
-        int hashCode = hash(key);
-  
-        for (int i = 0; i < this.capacity; i++) {
-            int index = (hashCode + i) % this.capacity;  
-
-            if (keyBuckets[index] == null) {
-                return null;
-            }
-            
-            if (keyBuckets[index].compareTo(key) == 0) {
+        Integer index = hash(key);
+    
+        while (keyBuckets[index] != null) {
+            if (keyBuckets[index].equals(key)) {
                 return valueBuckets[index];
             }
-       }
-
+            index = (index + 1) % capacity;
+          
+        }
         return null;
     }
 
     public void put(K key, V value) {
-        int hashCode = hash(key);
-        int index = hashCode;
-        
-        int i = 0;
-        for (; i < this.capacity; i++) {
-            index = (hashCode + i) % this.capacity;    
+        Integer index = hash(key);
+        Integer probe = 1;
 
-            if (keyBuckets[index] == null || keyBuckets[index].compareTo(key) == 0) {  
-                
-                if (keyBuckets[index] == null) {
-                    keys.insert(key, this.size);
-                    this.size++;
-                }
-
-                maxProbe = Math.max(maxProbe, i);
-                //comparisons += i;
-                keyBuckets[index] = key;
+        while (keyBuckets[index] != null) {
+            if (keyBuckets[index].compareTo(key) == 0) {
                 valueBuckets[index] = value;
                 return;
             }
-            comparisons++;
+            index = (index + 1) % capacity;
+            probe++;
         }
 
-        //comparisons += i - 1;
-        maxProbe = Math.max(maxProbe, i - 1);
+        keyBuckets[index] = key;
+        valueBuckets[index] = value;
+        keys.insert(key, size);
+        size++;
+
+        comparisons += probe;
+
+        if (probe > maxProbe) {
+            maxProbe = probe;
+        }
     }
 
-    public int size(){
+    public Integer size(){
         return this.size;
     }
 
@@ -75,17 +67,19 @@
         if (this.size == 0) return "[]";
 
         StringBuilder hashTable = new StringBuilder("[");
-        K key = keys.get(0);
-        hashTable.append(key);
-        hashTable.append(":");
-        hashTable.append(get(key));
+
         
-        for (int i = 1; i < keys.size(); i++) {
-            hashTable.append(", ");
-            key = keys.get(i);
-            hashTable.append(key);
-            hashTable.append(":");
-            hashTable.append(get(key));
+        for (int i = 0; i < keyBuckets.length; i++) {
+            if (keyBuckets[i] != null) {
+                K key = keyBuckets[i];
+            
+                if (i != 0) hashTable.append(", ");
+                
+                hashTable.append(key);
+                hashTable.append(":");
+                
+                hashTable.append(get(key));
+            }
         }
 
         hashTable.append("]");
